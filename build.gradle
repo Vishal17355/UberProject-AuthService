@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.5.5'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'org.flywaydb.flyway' version '10.22.0'
 }
 
 group = 'org.example'
@@ -10,7 +11,7 @@ description = 'UberProject-AuthService'
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(24)
+        languageVersion = JavaLanguageVersion.of(24) // ✅ Use stable LTS
     }
 }
 
@@ -24,16 +25,35 @@ repositories {
     mavenCentral()
 }
 
+flyway {
+    url = 'jdbc:mysql://localhost:3306/uber_db_local' // ✅ Your DB name
+    user = 'root'                                     // ✅ DB username
+    password = 'vishal123'                            // ✅ DB password
+    schemas = ['uber_db_local']                       // optional but recommended
+    locations = ['classpath:db/migration']            // default migration folder
+}
+
 dependencies {
+    // Spring Boot starters
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.flywaydb:flyway-core'
-    implementation 'org.flywaydb:flyway-mysql'
+
+    // ✅ Flyway (explicit core + MySQL support)
+    implementation "org.flywaydb:flyway-core:10.22.0"
+    implementation "org.flywaydb:flyway-mysql:10.22.0"
+
+    // ✅ MySQL JDBC driver
+    runtimeOnly 'com.mysql:mysql-connector-j:9.4.0'
+
+    // Lombok
     compileOnly 'org.projectlombok:lombok'
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
-    runtimeOnly 'com.mysql:mysql-connector-j'
-    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
     annotationProcessor 'org.projectlombok:lombok'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
+    // Dev tools
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+    // Testing
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
