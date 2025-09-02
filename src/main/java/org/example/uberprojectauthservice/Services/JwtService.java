@@ -1,6 +1,7 @@
 package org.example.uberprojectauthservice.Services;
 
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -10,9 +11,11 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 @Service
 public class JwtService implements   CommandLineRunner {
@@ -23,18 +26,62 @@ public class JwtService implements   CommandLineRunner {
 
     @Value("${jwt.secret}")
     private String secret;
-    private String createToken(Map<String, Object> payload , String UserName){// this method create a new token based on payload
+    private String createToken(Map<String, Object> payload , String email){// this method create a new token based on payload
 
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expiry  * 1000L);
-        SecretKey key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+
         return Jwts.builder()
                 .claims(payload)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(expiryDate)
-                .subject(UserName)
-                .signWith(key)
+                .subject(email)
+                .signWith(getSignKey())
                 .compact();
+    }
+
+    private Claims extractAllPayLoad(String token) {
+        return Jwts
+                .parser()
+                .setSigningKey(getSignKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+    public <T> T extractClaims(String token, Function<Claims, T> claimsResolver) {
+        final  Claims claims = extractAllPayLoad(token);
+        return claimsResolver.apply(claims);
+    }
+
+    private Date ExtractExpiration(String token){
+
+        return extractClaims(token, Claims::getExpiration);
+    }
+
+    private String extractEmail(String token){
+        return extractClaims(token, Claims::getSubject);
+    }
+
+    private Boolean isTokenExpired(String token) {
+        return ExtractExpiration(token).before(new Date());
+    }
+
+
+    private Key getSignKey(){
+        return  Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+    }
+
+    private Boolean validateToken(String token , String email) {
+
+        final String userEmailFetchedFromToken = extractEmail(token);
+        return (userEmailFetchedFromToken.equals(email))&& !isTokenExpired(token);
+    }
+
+    private String extractPayload(String token , String payloadKey){
+        Claims claims = extractAllPayLoad(token);
+        return (String) claims.get(payloadKey);
+
+
     }
 
     @Override
@@ -46,5 +93,6 @@ public class JwtService implements   CommandLineRunner {
 
         String result = createToken( mp,"vishal");
         System.out.println("Generate tokeen is :" + result);
+        System.out.println(extractPayload(result , "phoneNumber").toString());
     }
 }
