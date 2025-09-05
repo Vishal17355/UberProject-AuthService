@@ -3,6 +3,7 @@ package org.example.uberprojectauthservice.Services;
 import org.example.uberprojectauthservice.Helper.AuthPassengerDetails;
 import org.example.uberprojectauthservice.Models.Passenger;
 import org.example.uberprojectauthservice.repositories.PassengerRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.Repository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -20,12 +21,10 @@ import java.util.Optional;
 
 @Service
 public class UserDetailServiceImp implements UserDetailsService {
+@Autowired
+    private  PassengerRepository passengerRepository;
 
-    private final PassengerRepository passengerRepository;
 
-    public UserDetailServiceImp(PassengerRepository passengerRepository) {
-        this.passengerRepository = passengerRepository;
-    }
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
