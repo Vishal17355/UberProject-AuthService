@@ -4,6 +4,7 @@ import org.example.uberprojectauthservice.Helper.AuthPassengerDetails;
 import org.example.uberprojectauthservice.Models.Passenger;
 import org.example.uberprojectauthservice.repositories.PassengerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.repository.Repository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -18,7 +19,7 @@ import java.util.Optional;
  *
  *
  */
-
+@Primary
 @Service
 public class UserDetailServiceImp implements UserDetailsService {
 @Autowired

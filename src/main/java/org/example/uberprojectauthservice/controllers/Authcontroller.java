@@ -1,6 +1,7 @@
 package org.example.uberprojectauthservice.controllers;
 
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.example.uberprojectauthservice.Models.Passenger;
@@ -18,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -36,7 +38,8 @@ private final JwtService jwtService;
 private final AuthenticationManager authenticationManager;
 
 
-public Authcontroller(AuthService authService, AuthenticationManager authenticationManager , JwtService jwtService) {
+
+    public Authcontroller(AuthService authService, AuthenticationManager authenticationManager , JwtService jwtService) {
     this.authService=authService;
     this.authenticationManager=authenticationManager;
     this.jwtService=jwtService;
@@ -55,29 +58,34 @@ public Authcontroller(AuthService authService, AuthenticationManager authenticat
 Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequestDto.getEmail(), authRequestDto.getPassword()));
 if(authentication.isAuthenticated()){
 
+    String JwtToken = jwtService.createToken(authRequestDto.getEmail());
     response.setHeader(HttpHeaders.SET_COOKIE  , "12345");
-    Map<String , Object> payload = new HashMap<>();
-    payload.put("email" , authRequestDto.getEmail());
 
 
-    String jwtToken = jwtService.createToken(authRequestDto.getEmail());
-
-
-    String JwtToken = "";
     ResponseCookie cookie =ResponseCookie.from("JwtToken" , JwtToken)
             .httpOnly(true)
             .secure(false)
             .path("/")
-            .maxAge(cookieExpiry)
+            .maxAge(7 * 24 * 60 * 60)
             .build();
 
     response.setHeader(HttpHeaders.SET_COOKIE , cookie.toString());
-    return new  ResponseEntity<>(jwtToken, HttpStatus.OK);
+    return new  ResponseEntity<>(JwtToken, HttpStatus.OK);
 
 }
 
         return new ResponseEntity<>(AuthResponseDTo.builder().success(true).build(), HttpStatus.OK);
+
     }
 
 
+
+    @GetMapping("/validate")
+    public ResponseEntity<?> validate(HttpServletRequest request){
+        System.out.println("VALidate controller");
+        for(Cookie cookie : request.getCookies()){
+            System.out.println(cookie.getName()+ " " + cookie.getValue());
+        }
+        return new ResponseEntity<>("Success", HttpStatus.OK);
+    }
 }
