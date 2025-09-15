@@ -40,9 +40,9 @@ public class JwtService implements   CommandLineRunner {
                 .compact();
     }
 
-     public String createToken(String email){
+    public String createToken(String email){
         return createToken(new HashMap<>(), email);
-     }
+    }
 
     private Claims extractAllPayLoad(String token) {
         return Jwts

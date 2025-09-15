@@ -1,10 +1,9 @@
 package org.example.uberprojectauthservice.controllers;
 
-import jakarta.annotation.Resource;
+import com.sun.net.httpserver.Authenticator;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.example.uberprojectauthservice.Models.Passenger;
 import org.example.uberprojectauthservice.Services.AuthService;
 import org.example.uberprojectauthservice.Services.JwtService;
 import org.example.uberprojectauthservice.dto.AuthRequestDto;
@@ -19,11 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -53,8 +48,8 @@ private final AuthenticationManager authenticationManager;
 
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
-    @PostMapping("/signin/passenger")
-    public ResponseEntity<?> signIp(@RequestBody AuthRequestDto authRequestDto , HttpServletResponse response){
+    @PostMapping("/signIn/passenger")
+    public ResponseEntity<?> signin(@RequestBody AuthRequestDto authRequestDto , HttpServletResponse response){
 Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequestDto.getEmail(), authRequestDto.getPassword()));
 if(authentication.isAuthenticated()){
 
@@ -70,7 +65,7 @@ if(authentication.isAuthenticated()){
             .build();
 
     response.setHeader(HttpHeaders.SET_COOKIE , cookie.toString());
-    return new  ResponseEntity<>(JwtToken, HttpStatus.OK);
+    return new  ResponseEntity<>("sucess : true", HttpStatus.OK);
 
 }
 
@@ -82,7 +77,7 @@ if(authentication.isAuthenticated()){
 
     @GetMapping("/validate")
     public ResponseEntity<?> validate(HttpServletRequest request){
-        System.out.println("VALidate controller");
+        System.out.println("Validate controller");
         for(Cookie cookie : request.getCookies()){
             System.out.println(cookie.getName()+ " " + cookie.getValue());
         }

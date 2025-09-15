@@ -23,6 +23,7 @@ configurations {
 
 repositories {
     mavenCentral()
+    mavenLocal()
 }
 
 flyway {
@@ -38,9 +39,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
 
-    // ✅ Flyway (explicit core + MySQL support)
-    implementation "org.flywaydb:flyway-core:10.22.0"
-    implementation "org.flywaydb:flyway-mysql:10.22.0"
+
 
     // ✅ MySQL JDBC driver
     runtimeOnly 'com.mysql:mysql-connector-j:9.4.0'
@@ -59,6 +58,11 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security:3.2.5'
 // https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt
     implementation 'io.jsonwebtoken:jjwt:0.12.5'
+
+
+
+    implementation 'org.example:UberProject-EntityService:0.0.3-SNAPSHOT'
+
 }
 
 tasks.named('test') {
